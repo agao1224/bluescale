@@ -13,6 +13,7 @@ class CentralViewController: UIViewController {
     // UIViewController overrides, properties specific to this class, private helper methods, etc.
 
     @IBOutlet var textView: UITextView!
+    @IBOutlet var recieveSwitch: UISwitch!
 
     var centralManager: CBCentralManager!
 
@@ -21,9 +22,10 @@ class CentralViewController: UIViewController {
     var writeIterationsComplete = 0
     var connectionIterationsComplete = 0
     
-    let defaultIterations = 5     // change this value based on test usecase
+    let defaultIterations = 2     // change this value based on test usecase
     
     var data = Data()
+    var not_endpoint: Bool = true
 
     // MARK: - view lifecycle
     
@@ -338,14 +340,37 @@ extension CentralViewController: CBPeripheralDelegate {
             DispatchQueue.main.async() {
                 self.textView.text = String(data: self.data, encoding: .utf8)
             }
+            if not_endpoint {
+                os_log("perfomring segue")
+                performSegue(withIdentifier: "toP", sender: self)
+            }
             
             // Write test data
             writeData()
+            
+            
         } else {
             // Otherwise, just append the data to what we have previously received.
             data.append(characteristicData)
         }
     }
+    
+//    segue to peripheral
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        os_log("prepare log")
+        if segue.identifier == "toP" {
+            if let destinationVC = segue.destination as? PeripheralViewController {
+                destinationVC.message = String(data: self.data, encoding: .utf8) ?? "random string aaa failed"
+            }
+        }
+        
+//        if segue.identifier == "toP", let destinationVC = segue.destination as? PeripheralViewController {
+//            if let self. = sender as? String {
+//                destinationVC.message = selectedChat
+//            }
+//        }
+    }
+    
 
     /*
      *  The peripheral letting us know whether our subscribe/unsubscribe happened or not
@@ -377,6 +402,17 @@ extension CentralViewController: CBPeripheralDelegate {
     func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
         os_log("Peripheral is ready, send data")
         writeData()
+    }
+    
+    @IBAction func switchChanged(_ sender: Any) {
+        // All we advertise is our service's UUID.
+        if recieveSwitch.isOn {
+            self.not_endpoint = true
+            os_log("here")
+        } else {
+            self.not_endpoint = false
+            os_log("not here")
+        }
     }
     
 }

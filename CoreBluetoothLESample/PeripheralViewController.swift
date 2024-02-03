@@ -21,10 +21,14 @@ class PeripheralViewController: UIViewController {
     var dataToSend = Data()
     var sendDataIndex: Int = 0
     
+    var message: String = "passing a message"
+    
     // MARK: - View Lifecycle
     
     override func viewDidLoad() {
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [CBPeripheralManagerOptionShowPowerAlertKey: true])
+//        self.advertisingSwitch.setOn(true, animated: true)
+        self.textView.text = self.message
         super.viewDidLoad()
 
     }
@@ -103,7 +107,9 @@ class PeripheralViewController: UIViewController {
             }
             
             let stringFromData = String(data: chunk, encoding: .utf8)
-            os_log("Sent %d bytes: %s", chunk.count, String(describing: stringFromData))
+            
+            
+            os_log("Sent %d bytes: %s", message.count, String(describing: message))
             
             // It did send, so update our index
             sendDataIndex += amountToSend
@@ -258,6 +264,8 @@ extension PeripheralViewController: CBPeripheralManagerDelegate {
             }
             
             os_log("Received write request of %d bytes: %s", requestValue.count, stringFromData)
+//            edited below
+            os_log("trying to write to textView peripheral")
             self.textView.text = stringFromData
         }
     }
