@@ -1,3 +1,3 @@
 # BlueScale
 
-An internet built on the foundation of Bluetooth
+Messaging via bluetooth
